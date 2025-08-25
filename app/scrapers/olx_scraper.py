@@ -27,52 +27,48 @@ def blocking_scrape_olx (make: str, model: str, city: str):
 
     results = []
     # html parsing
-    ul_tags = soup.find_all("ul", class_="_1aad128c ec65250d")
-    for ul in ul_tags:
-        li_tags = ul.find_all("li")
-        for li in li_tags:
-            article = li.find("article", class_="_63a946ba")
-            if article:
-                #title
-                title_tag = article.find("h2", class_="_562a2db2")
-                title = title_tag.text.strip() if title_tag else "N/A"
-                #year
-                for span in article.find_all("span"):
-                    if span.text.strip().isdigit() and len(span.text.strip()) == 4:
-                        model_year = span.text.strip()
-                        break
-                #link
-                a_tag = article.find("a")
-                base_url = "https://www.olx.com.pk"
-                ad_link = base_url + a_tag['href'] if a_tag else "N/A"
-                #price
-                price_tag = article.find("span", class_="ddc1b288")
-                ad_price = price_tag.text.strip() if price_tag else "N/A"
-                #location
-                location = article.find("span", class_="f7d5e47e")
-                ad_location = location.text.strip() if location else "N/A"
-                #posted ago
-                posted_span = article.find("span", class_="c72cec28 undefined")
-                post_date = posted_span.text.strip() if posted_span else "N/A"
-                #image
-                img_tag = article.find("img", class_="_8e6d5d2b _914cbe21")
-                img_url = img_tag['src'] if img_tag else "N/A"
-                #milage
-                milage_span = article.find("span" , attrs={"aria-label": "Mileage"})
-                mileage=milage_span.text
+    li_tags = soup.find_all("li", {"aria-label": "Listing"})
+    for li in li_tags:
+        title_tag = li.find("h2", class_="_562a2db2")
+        title = title_tag.text.strip() if title_tag else "N/A"
+        #year
+        for span in li.find_all("span"):
+            if span.text.strip().isdigit() and len(span.text.strip()) == 4:
+                model_year = span.text.strip()
+                break
+        #link
+        a_tag = li.find("a")
+        base_url = "https://www.olx.com.pk"
+        ad_link = base_url + a_tag['href'] if a_tag else "N/A"
+        #price
+        price_tag = li.find("span", class_="ddc1b288")
+        ad_price = price_tag.text.strip() if price_tag else "N/A"
+        #location
+        location = li.find("span", class_="f7d5e47e")
+        ad_location = location.text.strip() if location else "N/A"
+        #posted ago
+        posted_span = li.find("span", class_="c72cec28 undefined")
+        post_date = posted_span.text.strip() if posted_span else "N/A"
+        #image
+        img_tag = li.find("img", class_="_8e6d5d2b _914cbe21")
+        img_url = img_tag['src'] if img_tag else "N/A"
+        #milage
+        mileage_span = li.find("span" , attrs={"aria-label": "Mileage"})
+        mileage=mileage_span.text
 
-                car_data = {
-                    "model_year": model_year,
-                    "title": title,
-                    "url": ad_link,
-                    "price": ad_price,
-                    "location": ad_location,
-                    "updated_time": post_date,
-                    "image": img_url,
-                    "mileage": mileage
-                }
 
-                results.append(car_data)
+        car_data ={
+            "model_year": model_year,
+            "title": title,
+            "url": ad_link,
+            "price": ad_price,
+            "location": ad_location,
+            "updated_time": post_date,
+            "image": img_url,
+            "mileage": mileage
+        }
+
+        results.append(car_data)
 
     return {"results": results if results else "No valid listings parsed"}
 
